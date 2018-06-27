@@ -13,10 +13,27 @@ var routes = [
                         type: 'GET',
                         dataType: 'text',
                         success: function(response){
-                            for(let i=0; i < items.length; i++){
-                                $('#books').append(response);
+                            template = response;
+                            items.forEach((item) => {
+                                let newTemplate = template.slice(0);
+                                let volInfo = item.volumeInfo;
+                                let id = item.id;
+                                let keys = Object.keys(volInfo);
+                                let link = `#/detail/${id}`;
+                                newTemplate = newTemplate.replace("{{routerLink}}", link).slice(0);
 
-                            }                            
+                                keys.forEach(function(key) {
+                                    if(key === 'imageLinks'){
+                                        let urlImage = volInfo[key].smallThumbnail;
+                                        newTemplate = newTemplate.replace(`{{${key}}}`, urlImage).slice(0);
+                                    } else {
+                                        let textBook = volInfo[key];
+                                        newTemplate = newTemplate.replace(`{{${key}}}`, textBook).slice(0);
+                                    }
+                                });
+                                
+                                $('#books').append(newTemplate);
+                            });                           
                         },
                         error: function(error){
                             console.log(error);
@@ -36,7 +53,48 @@ var routes = [
         "path": "/detail/:id",
         "component": "detail.html",
         "controller": function(id){
+            $.getJSON('./js/books.json').done(function(response){
+                let items = response.items;
+                let template;
 
+                $.ajax({
+                    url: './components/templates/book.html',
+                    type: 'GET',
+                    dataType: 'text',
+                    success: function(response){
+                        template = response;
+                        let itemResult = items.find((item) =>{
+                            return item.id === id;
+                        });
+
+                        if (itemResult){
+
+                            let newTemplate = template.slice(0);
+                            let volInfo = itemResult.volumeInfo;
+                            let keys = Object.keys(volInfo);
+
+                            keys.forEach(function(key) {
+                                if(key === 'imageLinks'){
+                                    let urlImage = volInfo[key].thumbnail;
+                                    newTemplate = newTemplate.replace(`{{${key}}}`, urlImage).slice(0);
+                                } else {
+                                    let textBook = volInfo[key];
+                                    newTemplate = newTemplate.replace(`{{${key}}}`, textBook).slice(0);
+                                }
+                            });
+                            $("#book").html(newTemplate);
+                        }
+                    },
+                    error: function(error){
+                        console.log(error);
+                    },
+                    complete: function(xhr, status){
+                        console.log(status);
+                    }
+                    
+                }
+                );
+            });
         }
     }
 ];
@@ -70,23 +128,7 @@ $(document).ready(function(){
     $(window).on('hashchange', function(e){
         let event = e.originalEvent;
         console.log(event);
-        let hash =event.newURL.split('#')[1];
-        
-        $.ajax({
-            url: './' + hash,
-            type: 'GET',
-            dataType: 'text',
-            success: function(response) {
-                console.log("Success: \n" + response);
-                $("#content").html(response);
-            },
-            error: function(error) {
-                console.log(error);
-            },
-            complete: function(xhr, status){
-                console.log(status);
-            }
-        });
+        router(event.target.location);
     });
 });
 
@@ -96,10 +138,30 @@ function router(ltn){
 
     routes.map(function(data){
         let url = loc.hash.slice(1) || '/';
+        let parts = url.substr(1).split('/'), param;
         console.log(url);
 
         if(url == "/" && data.path == "/"){
             getContent("./components/" + data.component, data.controller);
+        } else if(data.path.match(/:id/g)) {
+            let mod = data.path.split("/:id")[0].slice(1);
+            while(parts.length){
+                if(parts.shift() == mod){
+                    param = parts.shift();
+                    getContent("./components/" + data.component, data.controller, param);
+                } else {
+                    parts.shift()
+                }
+            }
+        } else {
+            let mod = data.path.split("/:id")[0].slice(1);
+            while(parts.length){
+                if(parts.shift() == mod){
+                    getContent("./components/" + data.component, data.controller);
+                } else {
+                    parts.shift()
+                }
+            }
         }
     });
 }
