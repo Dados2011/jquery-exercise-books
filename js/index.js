@@ -5,44 +5,51 @@ var routes = [
         "controller": function(){
             $.getJSON('./js/books.json').done(function(response){
                 let items = response.items;
-                let template;
 
-                $.ajax(
-                    {
-                        url: './components/templates/card.html',
-                        type: 'GET',
-                        dataType: 'text',
-                        success: function(response){
-                            template = response;
-                            items.forEach((item) => {
-                                let newTemplate = template.slice(0);
-                                let volInfo = item.volumeInfo;
-                                let id = item.id;
-                                let keys = Object.keys(volInfo);
-                                let link = `#/detail/${id}`;
-                                newTemplate = newTemplate.replace("{{routerLink}}", link).slice(0);
+                var ract = new Ractive({
+                    target: "#books",
+                    template: "#templateCard",
+                    data: {items: items }
+                });
 
-                                keys.forEach(function(key) {
-                                    if(key === 'imageLinks'){
-                                        let urlImage = volInfo[key].smallThumbnail;
-                                        newTemplate = newTemplate.replace(`{{${key}}}`, urlImage).slice(0);
-                                    } else {
-                                        let textBook = volInfo[key];
-                                        newTemplate = newTemplate.replace(`{{${key}}}`, textBook).slice(0);
-                                    }
-                                });
+                // let template;
+
+                // $.ajax(
+                //     {
+                //         url: './components/templates/card.html',
+                //         type: 'GET',
+                //         dataType: 'text',
+                //         success: function(response){
+                //             template = response;
+                //             items.forEach((item) => {
+                //                 let newTemplate = template.slice(0);
+                //                 let volInfo = item.volumeInfo;
+                //                 let id = item.id;
+                //                 let keys = Object.keys(volInfo);
+                //                 let link = `#/detail/${id}`;
+                //                 newTemplate = newTemplate.replace("{{routerLink}}", link).slice(0);
+
+                //                 keys.forEach(function(key) {
+                //                     if(key === 'imageLinks'){
+                //                         let urlImage = volInfo[key].smallThumbnail;
+                //                         newTemplate = newTemplate.replace(`{{${key}}}`, urlImage).slice(0);
+                //                     } else {
+                //                         let textBook = volInfo[key];
+                //                         newTemplate = newTemplate.replace(`{{${key}}}`, textBook).slice(0);
+                //                     }
+                //                 });
                                 
-                                $('#books').append(newTemplate);
-                            });                           
-                        },
-                        error: function(error){
-                            console.log(error);
-                        },
-                        complete: function(xhr, status){
-                            console.log(status);
-                        }
-                    }
-                );
+                //                 $('#books').append(newTemplate);
+                //             });                           
+                //         },
+                //         error: function(error){
+                //             console.log(error);
+                //         },
+                //         complete: function(xhr, status){
+                //             console.log(status);
+                //         }
+                //     }
+                // );
         
                 
             });
@@ -55,45 +62,54 @@ var routes = [
         "controller": function(id){
             $.getJSON('./js/books.json').done(function(response){
                 let items = response.items;
-                let template;
+                let itemResult = items.find((item) =>{
+                                    return item.id === id;
+                                });
+                var ract = new Ractive({
+                    target: "#book",
+                    template: "#templateBook",
+                    data: itemResult.volumeInfo
+                });
 
-                $.ajax({
-                    url: './components/templates/book.html',
-                    type: 'GET',
-                    dataType: 'text',
-                    success: function(response){
-                        template = response;
-                        let itemResult = items.find((item) =>{
-                            return item.id === id;
-                        });
+                // let template;
 
-                        if (itemResult){
+                // $.ajax({
+                //     url: './components/templates/book.html',
+                //     type: 'GET',
+                //     dataType: 'text',
+                //     success: function(response){
+                //         template = response;
+                //         let itemResult = items.find((item) =>{
+                //             return item.id === id;
+                //         });
 
-                            let newTemplate = template.slice(0);
-                            let volInfo = itemResult.volumeInfo;
-                            let keys = Object.keys(volInfo);
+                //         if (itemResult){
 
-                            keys.forEach(function(key) {
-                                if(key === 'imageLinks'){
-                                    let urlImage = volInfo[key].thumbnail;
-                                    newTemplate = newTemplate.replace(`{{${key}}}`, urlImage).slice(0);
-                                } else {
-                                    let textBook = volInfo[key];
-                                    newTemplate = newTemplate.replace(`{{${key}}}`, textBook).slice(0);
-                                }
-                            });
-                            $("#book").html(newTemplate);
-                        }
-                    },
-                    error: function(error){
-                        console.log(error);
-                    },
-                    complete: function(xhr, status){
-                        console.log(status);
-                    }
+                //             let newTemplate = template.slice(0);
+                //             let volInfo = itemResult.volumeInfo;
+                //             let keys = Object.keys(volInfo);
+
+                //             keys.forEach(function(key) {
+                //                 if(key === 'imageLinks'){
+                //                     let urlImage = volInfo[key].thumbnail;
+                //                     newTemplate = newTemplate.replace(`{{${key}}}`, urlImage).slice(0);
+                //                 } else {
+                //                     let textBook = volInfo[key];
+                //                     newTemplate = newTemplate.replace(`{{${key}}}`, textBook).slice(0);
+                //                 }
+                //             });
+                //             $("#book").html(newTemplate);
+                //         }
+                //     },
+                //     error: function(error){
+                //         console.log(error);
+                //     },
+                //     complete: function(xhr, status){
+                //         console.log(status);
+                //     }
                     
-                }
-                );
+                // }
+                // );
             });
         }
     }

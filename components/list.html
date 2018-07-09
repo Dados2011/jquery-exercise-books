@@ -1,13 +1,38 @@
-<nav  class="nav-breadcrumb">
-        <ul class="breadcrumb">
-            <li>
-                <a>Inicio</a>
-            </li>
-            <li>
-                <a>Libros</a>
-            </li>
-        </ul>
-    </nav>
+<nav arial-label="breadcrum">
+    <ol class="breadcrumb">
+        <li class="breadcrumb-item">
+            <a>Inicio</a>
+        </li>
+        <li class="breadcrumb-item active">
+            <a>Libros</a>
+        </li>
+    </ol>
+</nav>
 
-    <section class="content" id="books">        
-    </section>
+<section class="container content">
+    <div class="row" id="books">
+
+    </div>
+</section>
+
+<script id = "templateCard" type="text/ractive">
+    {{#each items}}
+    <div class="col-12 col-sm-12 col-md-6 col-lg-3">
+        <div class="card">
+            <div class="card-header">
+                {{volumeInfo.title}}
+            </div>
+            <img class="card-img-top" src="{{volumeInfo.imageLinks.smallThumbnail}}">
+            <div class="card-body">
+                <p clase="card-text">
+                    {{volumeInfo.publisher}}
+                </p>
+                <p clase="card-text">
+                    {{volumeInfo.publishedDate}}
+                </p>
+                <a class="col-12 col-md-auto col-lg-auto btn btn-primary" href="#/detail/{{id}}">Ver Detalle</a>
+            </div>
+        </div>
+    </div>
+    {{/each}}
+ </script>
